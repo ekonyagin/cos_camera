@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <m3api/xiApi.h> // Linux, OSX
 #include <memory.h>
+#include <string.h>
 #include <string>
 
 #include <nlohmann/json.hpp>
@@ -54,7 +55,6 @@ void Camera::ConfigureCamera(){
 	int offset_y = (int)cfg["offset_Y"];
 	int img_data_format;
 	bool auto_wb = (int)cfg["auto_wb"];
-	printf("Setting buffer..\n");
 
 	xiSetParamInt(xiH, XI_PRM_EXPOSURE, exposure);
 	xiSetParamInt(xiH, XI_PRM_IMAGE_DATA_FORMAT, XI_RGB24);
@@ -81,11 +81,7 @@ void Camera::Stop(){
 
 void Camera::GetFrame(uint8_t* pixels_corrected){
 	xiGetImage(xiH, 5000, &image);
-	for (int i = 0; i < GetHeight() * GetWidth(); i++){
-		int idx = i * CHANNEL_NUM;
-		uint8_t * pixels = (uint8_t*)image.bp;
-		pixels_corrected[idx+2] = pixels[idx];
-		pixels_corrected[idx + 1] = pixels[idx + 1];
-		pixels_corrected[idx] = pixels[idx+2];
-	}
+	uint8_t * pixels = (uint8_t*)image.bp;
+	memcpy(pixels_corrected, pixels, GetHeight() * GetWidth() * CHANNEL_NUM * sizeof(uint8_t));
+		
 }

@@ -6,6 +6,6 @@
  	"exposure" : 5000,
  	"gain" : 9,
  	"framerate" : 5,
- 	"auto_wb" : 0,
+ 	"auto_wb" : 1,
  	"img_format" : "rgb"
 }

@@ -1,6 +1,7 @@
 CXX=g++
-CFLAGS+=`pkg-config --cflags opencv`
-LDFLAGS+=`pkg-config --libs opencv`
+CC=g++
+CFLAGS+=`pkg-config --cflags opencv4`
+LDFLAGS+=`pkg-config --libs opencv4`
 SOURCES=xiSample.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 PROGRAM=xiSample
@@ -8,13 +9,11 @@ PROGRAM=xiSample
 all: $(PROGRAM)
 
 $(PROGRAM): $(OBJECTS)
-	$(CXX) -g  -fopenmp $(OBJECTS) -O3 -o $@ -lm3api $(LDFLAGS)
+	$(CXX) -g $(OBJECTS) -O3 -o $@ -F /Library/Frameworks -framework m3api $(LDFLAGS)
+	dsymutil $@
 
 .cpp.o: $(patsubst %.cpp,%.o,$(wildcard *.cpp))
-	$(CXX) -g  -c -O3 $(CFLAGS)  $< -o $@
+	$(CXX) -g -F /Library/Frameworks -c $< -O3 $(CFLAGS) -std=c++11 -o $@
 
 clean:
-	rm -f $(PROGRAM) $(OBJECTS)
-
-install:
-	cp $(PROGRAM) ../../bin
+	rm -Rf $(PROGRAM) $(PROGRAM).dSYM $(OBJECTS)

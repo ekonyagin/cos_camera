@@ -1,0 +1,2 @@
+g++ -g -F /Library/Frameworks -c xiSample.cpp -O3 `pkg-config --cflags opencv4` -std=c++11 -o xiSample.o \
+&& g++ -g xiSample.o -O3 -o xiSample -F /Library/Frameworks -framework m3api `pkg-config --libs opencv4` && dsymutil xiSample
