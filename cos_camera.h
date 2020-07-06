@@ -33,6 +33,7 @@ public:
 
 		int exposure = (int)cfg["exposure"];
 		int gain = (int)cfg["gain"];
+		int framerate = (int)cfg["framerate"];
 		width = (int)cfg["width"];
 		height = (int)cfg["height"];
 		int offset_x = (int)cfg["offset_X"];
@@ -54,6 +55,10 @@ public:
 
 		xiSetParamInt(xiH, XI_PRM_HEIGHT, height);
 		xiSetParamInt(xiH, XI_PRM_OFFSET_Y, offset_y);
+
+		xiSetParamInt(xiH,XI_PRM_ACQ_TIMING_MODE, XI_ACQ_TIMING_MODE_FRAME_RATE);
+		// set frame rate
+		xiSetParamInt(xiH,XI_PRM_FRAMERATE,framerate);
 	}
 	void Start(){
 		printf("Starting acquisition...\n");

@@ -3,9 +3,9 @@
  	"offset_Y" : 100,
  	"width" : 1024,
  	"height" : 1024,
- 	"exposure" : 5000,
- 	"gain" : 9,
- 	"framerate" : 5,
+ 	"exposure" : 4000,
+ 	"gain" : 13,
+ 	"framerate" : 100,
  	"auto_wb" : 1,
- 	"img_format" : "rgb"
+ 	"rgb" : 0
 }
