@@ -1,6 +1,6 @@
 #include <stdio.h>
 #define CHANNEL_NUM 3
-
+#define BUFFER_SIZE 8
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
@@ -8,49 +8,90 @@
 #include <memory.h>
 #include <string>
 #include "cos_camera.h"
+#include <time.h>
+#include <omp.h>
 
 using namespace cv;
 
 struct ImwriteArgs{
 	int number;
 	int format;
-	Mat * img;
+	int height;
+	int width;
+	uint8_t * pixels_corrected;
 };
 
 void* WriteImg(void* args){
-	struct ImwriteArgs * write_args = (ImwriteArgs*)args;
-	std::string fname = "image_" + std::to_string(write_args->number) + ".jpg";
+	struct ImwriteArgs * write_args = (struct ImwriteArgs*)args;
+	std::string fname = "image_" + std::to_string(write_args->number) + ".png";
 	const char *filename = fname.c_str();
-	imwrite(filename, *write_args->img);
+	//Mat image_to_write = *write_args->img;
+	//printf("Creating Mat..\n");
+	Mat image_to_write(write_args->height, write_args->width, CV_8UC1, (void*)write_args->pixels_corrected);
+	//printf("Created Mat!\n");
+	imwrite(filename, image_to_write);
 	return NULL;
 }
 
 int main(int argc, char* argv[])
 {
+	omp_set_num_threads(BUFFER_SIZE);
+
+	//pthread_t thread_id[2];
 	Camera cam = Camera();
 	
 	//printf("User API: height is %d, width is %d\n", height, width);
 	int height = cam.GetHeight(), width = cam.GetWidth();
-	uint8_t * pixels_corrected = (uint8_t * )malloc(height * width * CHANNEL_NUM * sizeof(uint8_t));
+	
+	uint8_t ** pixels_corrected = (uint8_t**)malloc(BUFFER_SIZE * sizeof(uint8_t*));
+	uint8_t ** pixels_corrected_old = (uint8_t**)malloc(BUFFER_SIZE * sizeof(uint8_t*));
+	for (int i = 0; i < BUFFER_SIZE; i++){
+		pixels_corrected[i] = (uint8_t * )malloc(height * width * CHANNEL_NUM * sizeof(uint8_t));
+		pixels_corrected_old[i] = (uint8_t * )malloc(height * width * CHANNEL_NUM * sizeof(uint8_t));
+	}
+	struct ImwriteArgs write_args[BUFFER_SIZE];
+	struct ImwriteArgs write_args_old[BUFFER_SIZE];
+	
+	
 	cam.Start();
 	//printf("height is %d, width is %d\n", height, width);
-
-	for (int images=0; images < 100; images++)
-	{
-		// getting image from camera
-		
-		cam.GetFrame(pixels_corrected);
-		Mat img(height, width, CV_8UC3, (void*)pixels_corrected);
-		// see https://www.ximea.com/support/gfiles/buffer_policy_in_xiApi.png to correct image reading!
-		struct ImwriteArgs write_args;
-		write_args.number = images;
-		write_args.img = &img;
-		WriteImg((void*)&write_args);
-		//printf("Image %d (%dx%d) received from camera.\n", images, width, height);
+	int N_IMG = 100/BUFFER_SIZE;
+	double start = omp_get_wtime();
+	for (int images=0; images < N_IMG; images++){	
+		//printf("Getting images..\n");
+		for (int i = 0; i < BUFFER_SIZE; i++){
+			cam.GetFrame(pixels_corrected_old[i]);
+			write_args_old[i].number = images * BUFFER_SIZE + i;
+			write_args_old[i].pixels_corrected = pixels_corrected_old[i];
+			write_args_old[i].height = height;
+			write_args_old[i].width = width;
+		}
+		#pragma omp barrier
+		//printf("Writing to disk..\n");
+		#pragma omp parallel
+		{
+			#pragma omp for nowait
+			for (int i = 0; i < BUFFER_SIZE; i++){
+				//printf("Copying pixels value..\n");
+				memcpy((void*)pixels_corrected[i], (void*)pixels_corrected_old[i], height * width * CHANNEL_NUM * sizeof(uint8_t));
+				//printf("Copying struct value..\n");
+				memcpy((void*)&write_args[i], (void*)&write_args_old[i], sizeof(ImwriteArgs));
+				//printf("Copying struct value OK\n");
+				write_args[i].pixels_corrected = pixels_corrected[i];
+				//printf("Calling imwrite..\n");
+				WriteImg((void*)&write_args[i]);
+			} 
+		}		
 	}
+	#pragma omp barrier
+	double end = omp_get_wtime();
+	printf("Time elapsed (png): %f seconds.\n", end-start);
 	cam.Stop();
-	free(pixels_corrected);
 	
+	for (int i = 0; i < BUFFER_SIZE; i++){
+		free(pixels_corrected[i]);
+	}
+	free(pixels_corrected);
 	printf("Done\n");
 	return 0;
 }
