@@ -1,7 +1,7 @@
-CXX=g++
+CXX=/usr/local/opt/llvm/bin/clang++
 CC=g++
-CFLAGS+=`pkg-config --cflags opencv4`
-LDFLAGS+=`pkg-config --libs opencv4`
+CFLAGS+=`pkg-config --cflags opencv4` -I/usr/local/opt/llvm/include -I/usr/local/opt/nlohmann-json/include
+LDFLAGS+= -fopenmp `pkg-config --libs opencv4`
 SOURCES=xiSample.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 PROGRAM=xiSample
@@ -13,7 +13,10 @@ $(PROGRAM): $(OBJECTS)
 	dsymutil $@
 
 .cpp.o: $(patsubst %.cpp,%.o,$(wildcard *.cpp))
-	$(CXX) -g -F /Library/Frameworks -c $< -O3 $(CFLAGS) -std=c++11 -o $@
+	$(CXX) -g -F /Library/Frameworks  -c $< -O3 $(CFLAGS) -std=c++11 -o $@
 
 clean:
-	rm -Rf $(PROGRAM) $(PROGRAM).dSYM $(OBJECTS)
+	rm -Rf $(PROGRAM).dSYM $(OBJECTS) *.png *.jpg
+
+clean_all:
+	rm -Rf $(PROGRAM) $(PROGRAM).dSYM $(OBJECTS) *.png *.jpg
