@@ -1,17 +1,19 @@
 #include <stdio.h>
-#define CHANNEL_NUM 3
-#define BUFFER_SIZE 8
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
 
 #include <memory.h>
 #include <string>
-#include "cos_camera.h"
+
 #include <time.h>
 #include <omp.h>
 
-using namespace cv;
+#define CHANNEL_NUM 3
+#define BUFFER_SIZE 8
+
+#include "cos_camera.h"
 
 struct ImwriteArgs{
 	int number;
@@ -27,9 +29,9 @@ void* WriteImg(void* args){
 	const char *filename = fname.c_str();
 	//Mat image_to_write = *write_args->img;
 	//printf("Creating Mat..\n");
-	Mat image_to_write(write_args->height, write_args->width, CV_8UC1, (void*)write_args->pixels_corrected);
+	cv::Mat image_to_write(write_args->height, write_args->width, CV_8UC1, (void*)write_args->pixels_corrected);
 	//printf("Created Mat!\n");
-	imwrite(filename, image_to_write);
+	cv::imwrite(filename, image_to_write);
 	return NULL;
 }
 
