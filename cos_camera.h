@@ -11,11 +11,26 @@
 
 using json = nlohmann::json;
 
+struct Config{
+	int exposure;
+	int gain;
+	int framerate;
+	int width;
+	int height;
+	int offset_x;
+	int offset_y;
+	int img_data_format;
+	int auto_wb;
+	int buffer_size;
+	char SerialNr[32];
+};
+
 class Camera{
 private:
 	XI_IMG image;
 	HANDLE xiH = NULL;
 	int height, width;
+	struct Config conf;
 	
 public:
 	Camera(){
@@ -26,40 +41,52 @@ public:
 		ConfigureCamera();
 	}
 	void ConfigureCamera(){
-		xiOpenDevice(0, &xiH);
-		std::ifstream i("camera_cfg.json");
 		json cfg;
+		std::ifstream i("camera_cfg.json");
+		
 		i >> cfg;
 
-		int exposure = (int)cfg["exposure"];
-		int gain = (int)cfg["gain"];
-		int framerate = (int)cfg["framerate"];
-		width = (int)cfg["width"];
-		height = (int)cfg["height"];
-		int offset_x = (int)cfg["offset_X"];
-		int offset_y = (int)cfg["offset_Y"];
-		int img_data_format = (int)cfg["rgb"];
-		bool auto_wb = (int)cfg["auto_wb"];
+		conf.exposure = (int)cfg["exposure"];
+		conf.gain = (int)cfg["gain"];
+		conf.framerate = (int)cfg["framerate"];
+		conf.width = (int)cfg["width"];
+		conf.height = (int)cfg["height"];
+		conf.offset_x = (int)cfg["offset_X"];
+		conf.offset_y = (int)cfg["offset_Y"];
+		conf.img_data_format = (int)cfg["rgb"];
+		conf.auto_wb = (int)cfg["auto_wb"];
 
-		xiSetParamInt(xiH, XI_PRM_EXPOSURE, exposure);
-		xiSetParamInt(xiH, XI_PRM_GAIN, gain);
+		ShowConf();
+
+		xiOpenDevice(0, &xiH);
+
+		xiSetParamInt(xiH, XI_PRM_EXPOSURE, conf.exposure);
+		xiSetParamInt(xiH, XI_PRM_GAIN, conf.gain);
 		
-		if (img_data_format == 1) {
+		if (conf.img_data_format == 1) {
 			xiSetParamInt(xiH, XI_PRM_IMAGE_DATA_FORMAT, XI_RGB24);
-			xiSetParamInt(xiH, XI_PRM_AUTO_WB, auto_wb);
+			xiSetParamInt(xiH, XI_PRM_AUTO_WB, conf.auto_wb);
 		} else
 			xiSetParamInt(xiH, XI_PRM_IMAGE_DATA_FORMAT, XI_RAW8);
-		
-		xiSetParamInt(xiH, XI_PRM_WIDTH, width);
-		xiSetParamInt(xiH, XI_PRM_OFFSET_X, offset_x);
 
-		xiSetParamInt(xiH, XI_PRM_HEIGHT, height);
-		xiSetParamInt(xiH, XI_PRM_OFFSET_Y, offset_y);
+		int buffer_size;
+		xiGetParamInt(xiH, XI_PRM_ACQ_TRANSPORT_BUFFER_SIZE XI_PRM_INFO_MAX, &buffer_size);
+		xiSetParamInt(xiH, XI_PRM_ACQ_TRANSPORT_BUFFER_SIZE, buffer_size);
+		
+		xiSetParamInt(xiH, XI_PRM_WIDTH, conf.width);
+		xiSetParamInt(xiH, XI_PRM_OFFSET_X, conf.offset_x);
+
+		xiSetParamInt(xiH, XI_PRM_HEIGHT, conf.height);
+		xiSetParamInt(xiH, XI_PRM_OFFSET_Y, conf.offset_y);
 
 		xiSetParamInt(xiH,XI_PRM_ACQ_TIMING_MODE, XI_ACQ_TIMING_MODE_FRAME_RATE);
-		// set frame rate
-		xiSetParamInt(xiH,XI_PRM_FRAMERATE,framerate);
+		xiSetParamInt(xiH,XI_PRM_FRAMERATE,conf.framerate);
 	}
+	void ShowConf(){
+		printf("User API: config\n\tExposure:\t%d\n\tGain:\t\t%d\n\tFPS:\t\t%d\n\tWidth x Height:\t%dx%d\n\toffX,offY:\t%d, %d\n\tRGB:\t\t%d\n\tauto_wb:\t%d\n",\
+			conf.exposure, conf.gain, conf.framerate, conf.width, conf.height, conf.offset_x, conf.offset_y, conf.img_data_format, conf.auto_wb);
+	}
+
 	void Start(){
 		printf("Starting acquisition...\n");
 		xiStartAcquisition(xiH);
@@ -74,13 +101,9 @@ public:
 		xiStopAcquisition(xiH);
 	}
 
-	int GetHeight(){ return height;}
-	int GetWidth(){ return width;}
+	int GetHeight(){ return conf.height;}
+	int GetWidth(){ return conf.width;}
 	~Camera(){
 		xiCloseDevice(xiH);
 	}
 };
-
-
-
-
