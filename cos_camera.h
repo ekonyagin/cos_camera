@@ -31,16 +31,18 @@ private:
 	HANDLE xiH = NULL;
 	int height, width;
 	struct Config conf;
+	int dev_id_;
 	
 public:
-	Camera(){
+	Camera(const int dev_id){
 		memset(&image, 0, sizeof(image));
 		image.size = sizeof(XI_IMG);
-		
-		printf("Starting config..\n");
-		ConfigureCamera();
+		dev_id_ = dev_id;
+		printf("USER_API: mStarting config..\n");
+		ConfigureCamera(dev_id_);
 	}
-	void ConfigureCamera(){
+	Camera(){}
+	void ConfigureCamera(const int dev_id){
 		json cfg;
 		std::ifstream i("camera_cfg.json");
 		
@@ -58,7 +60,7 @@ public:
 
 		ShowConf();
 
-		xiOpenDevice(0, &xiH);
+		xiOpenDevice(dev_id, &xiH);
 
 		xiSetParamInt(xiH, XI_PRM_EXPOSURE, conf.exposure);
 		xiSetParamInt(xiH, XI_PRM_GAIN, conf.gain);
@@ -83,12 +85,12 @@ public:
 		xiSetParamInt(xiH,XI_PRM_FRAMERATE,conf.framerate);
 	}
 	void ShowConf(){
-		printf("User API: config\n\tExposure:\t%d\n\tGain:\t\t%d\n\tFPS:\t\t%d\n\tWidth x Height:\t%dx%d\n\toffX,offY:\t%d, %d\n\tRGB:\t\t%d\n\tauto_wb:\t%d\n",\
+		printf("User_API: config\n\tExposure:\t%d\n\tGain:\t\t%d\n\tFPS:\t\t%d\n\tWidth x Height:\t%dx%d\n\toffX,offY:\t%d, %d\n\tRGB:\t\t%d\n\tauto_wb:\t%d\n",\
 			conf.exposure, conf.gain, conf.framerate, conf.width, conf.height, conf.offset_x, conf.offset_y, conf.img_data_format, conf.auto_wb);
 	}
 
 	void Start(){
-		printf("Starting acquisition...\n");
+		printf("USER_API: Starting acquisition...\n");
 		xiStartAcquisition(xiH);
 	}
 	void GetFrame(uint8_t* pixels_corrected){
@@ -97,7 +99,7 @@ public:
 		memcpy(pixels_corrected, pixels, GetHeight() * GetWidth() * CHANNEL_NUM * sizeof(uint8_t));
 	}
 	void Stop(){
-		printf("Stopping acquisition...\n");
+		printf("USER_API: Stopping acquisition...\n");
 		xiStopAcquisition(xiH);
 	}
 
@@ -105,5 +107,6 @@ public:
 	int GetWidth(){ return conf.width;}
 	~Camera(){
 		xiCloseDevice(xiH);
+		printf("USER_API: Deleting camera.. id: %d\n", dev_id_);
 	}
 };
