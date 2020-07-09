@@ -1,0 +1,12 @@
+{
+	"Type" : "AddTask",
+	"Task" : {
+			  "CameraID" : "NUC-01-01",
+			  "Trigger" : "Time",
+			  "TaskID" : 24124,
+			  "Time" : 109343000,
+			  "Duration" : 200,
+			  "Params" : {
+							}
+			}
+}

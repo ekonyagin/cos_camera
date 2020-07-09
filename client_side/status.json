@@ -1,0 +1,39 @@
+{
+"Type" : "Status",
+"Hub" : {
+        "ID" : "NUC-01",
+        "Model" : "NUC",
+        "ClientVersion" : 1
+},
+"Cameras" : [
+        {
+                "ID" : "NUC-01-01",
+                "SN" : "03123123033",
+                "State" : {
+                        "Active": "true",
+                        "auto_wb": "true",
+                        "AEAG": "false",
+                        "Exposure": 10000,
+                        "Gain": 5,
+                        "ResX" : 1280,
+                        "ResY" : 720,
+                        "FPS"    : 50,
+                        "Mode" : "RGB24"
+                },
+                "Caps" : {
+                        "MaxFPS" : 50,
+                        "MaxResX" : 1920,
+                        "MaxResY" : 1080,
+                        "SupportedModes" : ["MONO8", "RAW8"],
+                        "CanROI" : "true"
+                }
+        }
+],
+"Recordings" : [
+                        {
+                                "TaskID" : 24124,
+                                "ID"    : 0,
+                                "Transmitting" : "true"
+                        }
+                ]
+}
