@@ -22,7 +22,7 @@ struct Config{
 	int img_data_format;
 	int auto_wb;
 	int buffer_size;
-	char SerialNr[32];
+	char SerialNr[16];
 };
 
 class Camera{
@@ -38,7 +38,7 @@ public:
 		memset(&image, 0, sizeof(image));
 		image.size = sizeof(XI_IMG);
 		dev_id_ = dev_id;
-		printf("USER_API: mStarting config..\n");
+		printf("USER_API: Starting config..\n");
 		ConfigureCamera(dev_id_);
 	}
 	Camera(){}
@@ -61,6 +61,9 @@ public:
 		ShowConf();
 
 		xiOpenDevice(dev_id, &xiH);
+
+		xiGetParamString(xiH, XI_PRM_DEVICE_SN, conf.SerialNr, sizeof(conf.SerialNr));
+		printf("USER_API: Serial number of the camera is: %s\n",conf.SerialNr);
 
 		xiSetParamInt(xiH, XI_PRM_EXPOSURE, conf.exposure);
 		xiSetParamInt(xiH, XI_PRM_GAIN, conf.gain);
