@@ -1,0 +1,11 @@
+{
+ 	"offset_X" : 504,
+ 	"offset_Y" : 100,
+ 	"width" : 1024,
+ 	"height" : 1024,
+ 	"exposure" : 4000,
+ 	"gain" : 13,
+ 	"framerate" : 100,
+ 	"auto_wb" : 1,
+ 	"rgb" : 0
+}
