@@ -35,26 +35,18 @@ def Discard(task):
 if __name__ == "__main__":
 	with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 	    s.connect((HOST, PORT))
-	    #s.sendall(b'Hello, world')
-	    data = s.recv(1024)
-	    print(data)
-	    l = data[:4]
-	    print(struct.unpack('<l', l), l)
-	    data = data[4:]
-	    print("raw data is: ", data)
-	    command = json.loads(data)
-	    if command["Type"] == "GetStatus":
-	    	print("Got command GetStatus()")
-	    	s.sendall(GetStatus())
-	    else:
-	    	print("Unknown command")
-	    data = s.recv(1024).decode()
-	    command = json.loads(data)
-	    if command["Type"] == "AddTask":
-	    	print("Got command AddTask()")
-	    	AddTask(command["Task"])
-	    	s.sendall(b"OK\n")
-	    else:
-	    	print("Unknown command")
+	    while(True):
+		    data = s.recv(1024)
+		    print(data)
+		    l = data[:4]
+		    print(struct.unpack('<l', l), l)
+		    data = data[4:]
+		    print("raw data is: ", data)
+		    command = json.loads(data)
+		    if command["Type"] == "GetStatus":
+		    	print("Got command GetStatus()")
+		    	s.sendall(GetStatus())
+		    else:
+		    	print("Unknown command")
 
 	#print('Received', data)
