@@ -10,7 +10,9 @@
 #include <time.h>
 #include <omp.h>
 
-#define CHANNEL_NUM 3
+#include <fstream>
+
+#define CHANNEL_NUM 1
 #define BUFFER_SIZE 8
 
 #include "cos_camera.h"
@@ -36,9 +38,26 @@ void* WriteImg(void* args){
 	return NULL;
 }
 
+int GetCamerasNumber(){
+	json cfg;
+	std::ifstream i("cameras_description.json");
+	i >> cfg;
+	return (int)cfg["n_cameras"];
+}
+
+const int GetFramesNumber(const int buffer_size){
+	json cfg;
+	std::ifstream i("cameras_description.json");
+	i >> cfg;
+	int n_images = (int)cfg["n_images"];
+	return n_images/buffer_size;
+}
+
 int main(int argc, char* argv[])
 {
-	const int N_CAMERAS = 1;
+	const int N_CAMERAS = GetCamerasNumber();
+	printf("USER_API: n_cameras is %d\n", N_CAMERAS);
+	
 	omp_set_num_threads(BUFFER_SIZE*N_CAMERAS);
 	
 	Camera * cam[N_CAMERAS];
@@ -72,36 +91,42 @@ int main(int argc, char* argv[])
 			write_args_old[N][i].width = width[N];
 			write_args_old[N][i].cam_nr = N;
 		}
+		//printf("Allocated successfully!\n");
 		cam[N]->Start();
 	}
 	
 	
-	int N_IMG = 32/BUFFER_SIZE;
-
+	int N_IMG = GetFramesNumber(BUFFER_SIZE);
+	printf("USER_API: n_frames is %d\n", N_IMG);
 	//Recording part
-
+	//printf("Starting rec!\n");
 	double start = omp_get_wtime();
 	
 	for (int images=0; images < N_IMG; images++){	
 		
 		for(int N = 0; N < N_CAMERAS; N++){
 			for (int i = 0; i < BUFFER_SIZE; i++){
+				//printf("Entered rec loop! N is %d, i is %d\n",N, i);
 				cam[N]->GetFrame(pixels_corrected_old[N][i]);
+				//printf("Got picture from camera!\n");
 				write_args_old[N][i].number = images * BUFFER_SIZE + i;
 				write_args_old[N][i].pixels_corrected = pixels_corrected_old[N][i];
 			}
 		}
-		
+		//printf("Exited rec loop!\n");
 
 		#pragma omp barrier
 		
 		#pragma omp parallel
 		{
 			#pragma omp for nowait collapse(2)
-			for(int N = 0; N <N_CAMERAS; N++){
+			for(int N = 0; N < N_CAMERAS; N++){
 				for (int i = 0; i < BUFFER_SIZE; i++){
+					//printf("Entered writing loop!\n");
 					memcpy((void*)pixels_corrected[N][i], (void*)pixels_corrected_old[N][i], img_size[N]);
+					//printf("Copying OK!\n");
 					memcpy((void*)&write_args[N][i], (void*)&write_args_old[N][i], sizeof(ImwriteArgs));
+					//printf("Copying-2 OK!\n");
 					write_args[N][i].pixels_corrected = pixels_corrected[N][i];
 					WriteImg((void*)&write_args[N][i]);
 				} 

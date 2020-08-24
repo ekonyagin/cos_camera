@@ -88,7 +88,7 @@ public:
 		xiSetParamInt(xiH,XI_PRM_FRAMERATE,conf.framerate);
 	}
 	void ShowConf(){
-		printf("User_API: config\n\tExposure:\t%d\n\tGain:\t\t%d\n\tFPS:\t\t%d\n\tWidth x Height:\t%dx%d\n\toffX,offY:\t%d, %d\n\tRGB:\t\t%d\n\tauto_wb:\t%d\n",\
+		printf("USER_API: config\n\tExposure:\t%d\n\tGain:\t\t%d\n\tFPS:\t\t%d\n\tWidth x Height:\t%dx%d\n\toffX,offY:\t%d, %d\n\tRGB:\t\t%d\n\tauto_wb:\t%d\n",\
 			conf.exposure, conf.gain, conf.framerate, conf.width, conf.height, conf.offset_x, conf.offset_y, conf.img_data_format, conf.auto_wb);
 	}
 
@@ -98,8 +98,13 @@ public:
 	}
 	void GetFrame(uint8_t* pixels_corrected){
 		xiGetImage(xiH, 5000, &image);
+		//printf("xiGetImage OK!\n");
 		uint8_t * pixels = (uint8_t*)image.bp;
+		//printf("pixels array def OK! waiting for memcpy...\n");
+		//printf("first pixel value is: ");
+		//printf("%d\n", pixels[0]);
 		memcpy(pixels_corrected, pixels, GetHeight() * GetWidth() * CHANNEL_NUM * sizeof(uint8_t));
+		//printf("memcpy OK!\n");
 	}
 	void Stop(){
 		printf("USER_API: Stopping acquisition...\n");
