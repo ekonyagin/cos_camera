@@ -38,24 +38,21 @@ void* WriteImg(void* args){
 	return NULL;
 }
 
-int GetCamerasNumber(){
+void GetParams(int* n_cameras, int* n_images, const int buffer_size){
 	json cfg;
 	std::ifstream i("cameras_description.json");
 	i >> cfg;
-	return (int)cfg["n_cameras"];
+	*n_cameras =  (int)cfg["n_cameras"];
+	*n_images = (int)cfg["n_images"]/buffer_size;
 }
 
-const int GetFramesNumber(const int buffer_size){
-	json cfg;
-	std::ifstream i("cameras_description.json");
-	i >> cfg;
-	int n_images = (int)cfg["n_images"];
-	return n_images/buffer_size;
-}
 
 int main(int argc, char* argv[])
 {
-	const int N_CAMERAS = GetCamerasNumber();
+	int N_CAMERAS;
+	int N_IMG;
+	GetParams(&N_CAMERAS, &N_IMG, BUFFER_SIZE);
+	
 	printf("USER_API: n_cameras is %d\n", N_CAMERAS);
 	
 	omp_set_num_threads(BUFFER_SIZE*N_CAMERAS);
@@ -95,8 +92,6 @@ int main(int argc, char* argv[])
 		cam[N]->Start();
 	}
 	
-	
-	int N_IMG = GetFramesNumber(BUFFER_SIZE);
 	printf("USER_API: n_frames is %d\n", N_IMG);
 	//Recording part
 	//printf("Starting rec!\n");
