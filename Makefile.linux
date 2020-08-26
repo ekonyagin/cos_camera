@@ -1,6 +1,6 @@
 CXX=g++
-CFLAGS+=`pkg-config --cflags opencv`
-LDFLAGS+= -fopenmp `pkg-config --libs opencv`
+CFLAGS+=`pkg-config --cflags opencv4`
+LDFLAGS+= -fopenmp `pkg-config --libs opencv4`
 SOURCES=xiSample.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 PROGRAM=xiSample
