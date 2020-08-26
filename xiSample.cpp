@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 {
 	int N_CAMERAS;
 	int N_IMG;
-	int BUFFER_SIZE
+	int BUFFER_SIZE;
 	GetParams(&N_CAMERAS, &N_IMG, &BUFFER_SIZE);
 	
 	printf("USER_API: n_cameras is %d\n", N_CAMERAS);
