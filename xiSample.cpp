@@ -14,8 +14,6 @@
 
 #include "cos_camera.h"
 
-#define CHANNEL_NUM 1
-
 
 struct ImwriteArgs{
 	int number;
@@ -51,7 +49,7 @@ void GetParams(int* n_cameras, int* n_images, int* buffer_size, char* format){
 
 int main(int argc, char* argv[])
 {
-	int N_CAMERAS, N_IMG, BUFFER_SIZE;
+	int N_CAMERAS, N_IMG, BUFFER_SIZE, CHANNEL_NUM = 1;
 	char format[3];
 	
 	GetParams(&N_CAMERAS, &N_IMG, &BUFFER_SIZE, format);
@@ -70,7 +68,7 @@ int main(int argc, char* argv[])
 	int height[N_CAMERAS], width[N_CAMERAS], img_size[N_CAMERAS];
 	
 	for(int N = 0; N < N_CAMERAS; N++){
-		cam[N] = new Camera(N);
+		cam[N] = new Camera(N, CHANNEL_NUM);
 
 		height[N] = cam[N]->GetHeight(), width[N] = cam[N]->GetWidth();
 		img_size[N] = height[N] * width[N] * CHANNEL_NUM * sizeof(uint8_t);

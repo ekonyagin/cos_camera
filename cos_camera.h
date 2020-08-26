@@ -32,16 +32,18 @@ private:
 	int height, width;
 	struct Config conf;
 	int dev_id_;
+	int CHANNEL_NUM;
 	
 public:
-	Camera(const int dev_id){
+	Camera(const int dev_id, const int channel_num){
 		memset(&image, 0, sizeof(image));
+		CHANNEL_NUM = channel_num;
 		image.size = sizeof(XI_IMG);
 		dev_id_ = dev_id;
 		printf("USER_API: Starting config..\n");
 		ConfigureCamera(dev_id_);
 	}
-	Camera(){}
+	//Camera(){}
 	void ConfigureCamera(const int dev_id){
 		json cfg;
 		std::ifstream i("camera_cfg.json");
