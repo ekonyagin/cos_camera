@@ -1,5 +1,6 @@
 {
 	"n_cameras" : 2,
 	"n_images" : 1000,
-	"buffer_size" : 8
+	"buffer_size" : 8,
+	"format" : "jpg"
 }

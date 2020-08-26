@@ -22,13 +22,14 @@ struct ImwriteArgs{
 	int height;
 	int width;
 	int cam_nr;
+	std::string format;
 	uint8_t * pixels_corrected;
 };
 
 void* WriteImg(void* args){
 	struct ImwriteArgs * write_args = (struct ImwriteArgs*)args;
 	std::string fname = "image_" + std::to_string(write_args->cam_nr)+\
-			"_"+ std::to_string(write_args->number) + ".png";
+			"_"+ std::to_string(write_args->number) + "." + write_args->format;
 	const char *filename = fname.c_str();
 	
 	cv::Mat image_to_write(write_args->height, write_args->width,\ 
@@ -37,13 +38,14 @@ void* WriteImg(void* args){
 	return NULL;
 }
 
-void GetParams(int* n_cameras, int* n_images, int* buffer_size){
+void GetParams(int* n_cameras, int* n_images, int* buffer_size, std::string& format){
 	json cfg;
 	std::ifstream i("cameras_description.json");
 	i >> cfg;
 	*n_cameras =  (int)cfg["n_cameras"];
 	*buffer_size = (int)cfg["buffer_size"];
 	*n_images = (int)cfg["n_images"] / *buffer_size;
+	format = (std::string)cfg["format"];
 }
 
 
@@ -52,7 +54,8 @@ int main(int argc, char* argv[])
 	int N_CAMERAS;
 	int N_IMG;
 	int BUFFER_SIZE;
-	GetParams(&N_CAMERAS, &N_IMG, &BUFFER_SIZE);
+	std::string format;
+	GetParams(&N_CAMERAS, &N_IMG, &BUFFER_SIZE, format);
 	
 	printf("USER_API: n_cameras is %d\n", N_CAMERAS);
 	
@@ -88,11 +91,12 @@ int main(int argc, char* argv[])
 			write_args_old[N][i].height = height[N];
 			write_args_old[N][i].width = width[N];
 			write_args_old[N][i].cam_nr = N;
+			write_args_old[N][i].format = format;
 		}
 		//printf("Allocated successfully!\n");
 		cam[N]->Start();
 	}
-	
+	printf("USER_API: img_format is %s\n", format);
 	printf("USER_API: n_frames is %d\n", N_IMG);
 	//Recording part
 	//printf("Starting rec!\n");
@@ -104,7 +108,6 @@ int main(int argc, char* argv[])
 			for (int i = 0; i < BUFFER_SIZE; i++){
 				//printf("Entered rec loop! N is %d, i is %d\n",N, i);
 				cam[N]->GetFrame(pixels_corrected_old[N][i]);
-				//printf("Got picture from camera!\n");
 				write_args_old[N][i].number = images * BUFFER_SIZE + i;
 				write_args_old[N][i].pixels_corrected = pixels_corrected_old[N][i];
 			}
