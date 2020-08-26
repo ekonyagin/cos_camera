@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 				write_args_old[N][i].pixels_corrected = pixels_corrected_old[N][i];
 			}
 		}
-		printf("Exited rec loop!\n");
+		//printf("Exited rec loop!\n");
 
 		#pragma omp barrier
 		
