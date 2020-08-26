@@ -18,7 +18,7 @@
 
 struct ImwriteArgs{
 	int number;
-	int format;
+	//int format;
 	int height;
 	int width;
 	int cam_nr;
