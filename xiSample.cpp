@@ -13,7 +13,6 @@
 #include <fstream>
 
 #define CHANNEL_NUM 1
-#define BUFFER_SIZE 8
 
 #include "cos_camera.h"
 
@@ -38,12 +37,13 @@ void* WriteImg(void* args){
 	return NULL;
 }
 
-void GetParams(int* n_cameras, int* n_images, const int buffer_size){
+void GetParams(int* n_cameras, int* n_images, int* buffer_size){
 	json cfg;
 	std::ifstream i("cameras_description.json");
 	i >> cfg;
 	*n_cameras =  (int)cfg["n_cameras"];
-	*n_images = (int)cfg["n_images"]/buffer_size;
+	*buffer_size = (int)cfg["buffer_size"];
+	*n_images = (int)cfg["n_images"] / *buffer_size;
 }
 
 
@@ -51,7 +51,8 @@ int main(int argc, char* argv[])
 {
 	int N_CAMERAS;
 	int N_IMG;
-	GetParams(&N_CAMERAS, &N_IMG, BUFFER_SIZE);
+	int BUFFER_SIZE
+	GetParams(&N_CAMERAS, &N_IMG, &BUFFER_SIZE);
 	
 	printf("USER_API: n_cameras is %d\n", N_CAMERAS);
 	
