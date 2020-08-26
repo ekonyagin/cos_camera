@@ -45,7 +45,7 @@ void GetParams(int* n_cameras, int* n_images, int* buffer_size, std::string& for
 	*n_cameras =  (int)cfg["n_cameras"];
 	*buffer_size = (int)cfg["buffer_size"];
 	*n_images = (int)cfg["n_images"] / *buffer_size;
-	format = (std::string)cfg["format"];
+	format = cfg["format"];
 }
 
 
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 		//printf("Allocated successfully!\n");
 		cam[N]->Start();
 	}
-	printf("USER_API: img_format is %s\n", format);
+	printf("USER_API: img_format is %s\n", format.c_str());
 	printf("USER_API: n_frames is %d\n", N_IMG);
 	//Recording part
 	//printf("Starting rec!\n");
