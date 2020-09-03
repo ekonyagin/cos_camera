@@ -12,7 +12,7 @@ int main()
 {
 	vector<uint8_t> img;
 	CameraDaheng cam;
-	if(!cam.ConfigureCamera(0))
+	if(!cam.ConfigureCamera(1))
 	{
 		cout << "Configure error.\n";
 		return 1;

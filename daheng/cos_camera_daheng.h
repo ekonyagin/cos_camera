@@ -57,8 +57,10 @@ protected:
 	bool CloseAndPrintLastError(GX_STATUS emErrorStatus, const int line_macros_val=0);
 	
 public:
+	/// @param dev_id - The index of the device starts from 1
 	CameraDaheng(const int dev_id, const int channel_num);
 	CameraDaheng();
+	/// @param dev_id - The index of the device starts from 1
 	bool ConfigureCamera(const int dev_id);
 	void ShowConf();
 

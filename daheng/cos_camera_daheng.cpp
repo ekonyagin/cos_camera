@@ -102,9 +102,15 @@ bool CameraDaheng::ConfigureCamera(const int dev_id){
         Close();
         return false;
     }
+	if (dev_id < 1 || dev_id > ui32DeviceNum)
+	{
+		printf("<Invalid device ID>\n");
+		Close();
+		return false;
+	}
 
     //Open first device enumerated
-    emStatus = GXOpenDeviceByIndex(1, &hDevice);
+    emStatus = GXOpenDeviceByIndex(dev_id, &hDevice);
     if(emStatus != GX_STATUS_SUCCESS)
     	return CloseAndPrintLastError(emStatus, __LINE__);
 
@@ -164,6 +170,13 @@ bool CameraDaheng::ConfigureCamera(const int dev_id){
     img_buf.resize(img_buf_size);
     printf("<Payload size : %i>\n", img_buf_size);
 
+	// Set offset coordinates
+	emStatus = GXSetInt(hDevice, GX_INT_OFFSET_X, conf.offset_x);
+	if (emStatus != GX_STATUS_SUCCESS)
+		return CloseAndPrintLastError(emStatus, __LINE__);
+	emStatus = GXSetInt(hDevice, GX_INT_OFFSET_Y, conf.offset_y);
+	if (emStatus != GX_STATUS_SUCCESS)
+		return CloseAndPrintLastError(emStatus, __LINE__);
 
     // Set exposure
     emStatus = GXSetEnum(hDevice, GX_ENUM_EXPOSURE_MODE, GX_EXPOSURE_MODE_TIMED);
