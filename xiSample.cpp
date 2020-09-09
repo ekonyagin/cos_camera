@@ -141,10 +141,10 @@ int main(int argc, char* argv[])
 	for (int N = 0; N < N_CAMERAS; N++){
 		for (int i = 0; i < BUFFER_SIZE; i++){
 			free(pixels_corrected[N][i]);
-			//printf("Freed buffer %d %d\n", N, i);
+			printf("Freed buffer %d %d\n", N, i);
 		}
 		free(pixels_corrected[N]);
-		//printf("Freed buffer array %d\n", N);
+		printf("Freed buffer array %d\n", N);
 		delete cam[N];
 	}
 	printf("USER_API: Done!\n");

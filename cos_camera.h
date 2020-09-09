@@ -86,7 +86,7 @@ public:
 		xiSetParamInt(xiH, XI_PRM_HEIGHT, conf.height);
 		xiSetParamInt(xiH, XI_PRM_OFFSET_Y, conf.offset_y);
 
-		xiSetParamInt(xiH,XI_PRM_ACQ_TIMING_MODE, XI_ACQ_TIMING_MODE_FRAME_RATE);
+		xiSetParamInt(xiH,XI_PRM_ACQ_TIMING_MODE, XI_ACQ_TIMING_MODE_FRAME_RATE_LIMIT);
 		xiSetParamInt(xiH,XI_PRM_FRAMERATE,conf.framerate);
 	}
 	void ShowConf(){
